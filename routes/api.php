@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\AdminAuthController;
 
 Route::get('/test', function () {
     return response()->json([
@@ -20,4 +21,6 @@ Route::get('/blogs/{blog}', [BlogController::class, 'show']);
 Route::post('/blogs', [BlogController::class, 'store']);
 Route::put('/blogs/{blog}', [BlogController::class, 'update']);
 Route::delete('/blogs/{blog}', [BlogController::class, 'destroy']);
+
+Route::post('/admin/login', [AdminAuthController::class, 'login']);
 ?>
