@@ -31,26 +31,18 @@ class BlogController extends Controller
                 'max:5120',
             ],
         ]);
-
-        // $validated = $request->validate([
-        //     'title' => ['required', 'string', 'max:255'],
-        //     'content' => ['required', 'string'],
-        //     'author' => ['required', 'string', 'max:100'],
-        //     'thumbnail' => [
-        //         'required',
-        //         'image',
-        //         'mimes:jpeg,png,jpg,webp',
-        //         'max:5120',
-        //     ],
-        // ]);
-
-        $thumbnailPath = $request->file('thumbnail')
-            ->store('blogs', 'public');
-
+    
+        $thumbnailPath = null;
+    
+        if ($request->hasFile('thumbnail')) {
+            $thumbnailPath = $request->file('thumbnail')
+                ->store('blogs', 'public');
+        }
+    
         $blog = Blog::create([
             'title' => $validated['title'],
             'content' => $validated['content'],
-            'author' => $validated['author'],
+            'author' => $validated['author'] ?? null,
             'thumbnail' => $thumbnailPath,
         ]);
 
@@ -91,22 +83,13 @@ class BlogController extends Controller
                 'max:5120',
             ],
         ]);
-
-        // 新しいサムネイルがアップロードされた場合
+    
         if ($request->hasFile('thumbnail')) {
-            if ($blog->thumbnail) {
-                Storage::disk('public')->delete($blog->thumbnail);
-            }
-
             $thumbnailPath = $request->file('thumbnail')
                 ->store('blogs', 'public');
-
-            $blog->thumbnail = $thumbnailPath;
+    
+            $validated['thumbnail'] = $thumbnailPath;
         }
-
-        $blog->title = $validated['title'];
-        $blog->content = $validated['content'];
-        $blog->author = $validated['author'];
 
         $blog->save();
 
