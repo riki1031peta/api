@@ -91,7 +91,7 @@ class BlogController extends Controller
             $validated['thumbnail'] = $thumbnailPath;
         }
 
-        $blog->update();
+        $blog->update($validated);
 
         return response()->json($blog);
     }
