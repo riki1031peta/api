@@ -14,6 +14,12 @@ class BlogController extends Controller
      */
     public function store(Request $request)
     {
+        \Log::info('BLOG STORE', [
+            'all' => $request->except('thumbnail'),
+            'has_thumbnail' => $request->hasFile('thumbnail'),
+            'thumbnail' => $request->file('thumbnail')?->getClientOriginalName(),
+        ]);
+    
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
@@ -25,6 +31,18 @@ class BlogController extends Controller
                 'max:5120',
             ],
         ]);
+
+        // $validated = $request->validate([
+        //     'title' => ['required', 'string', 'max:255'],
+        //     'content' => ['required', 'string'],
+        //     'author' => ['required', 'string', 'max:100'],
+        //     'thumbnail' => [
+        //         'required',
+        //         'image',
+        //         'mimes:jpeg,png,jpg,webp',
+        //         'max:5120',
+        //     ],
+        // ]);
 
         $thumbnailPath = $request->file('thumbnail')
             ->store('blogs', 'public');
