@@ -23,9 +23,9 @@ class BlogController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
-            'author' => ['required', 'string', 'max:100'],
+            'author' => ['nullable', 'string', 'max:100'],
             'thumbnail' => [
-                'required',
+                'nullable',
                 'image',
                 'mimes:jpeg,png,jpg,webp',
                 'max:5120',
@@ -83,7 +83,7 @@ class BlogController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
-            'author' => ['required', 'string', 'max:100'],
+            'author' => ['nullable', 'string', 'max:100'],
             'thumbnail' => [
                 'nullable',
                 'image',
