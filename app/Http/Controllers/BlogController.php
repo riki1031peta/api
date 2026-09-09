@@ -27,7 +27,7 @@ class BlogController extends Controller
             'thumbnail' => [
                 'nullable',
                 'image',
-                'mimes:jpeg,png,jpg,webp',
+                'mimes:jpeg,png,jpg,webp,heic,heif',
                 'max:5120',
             ],
         ]);
@@ -79,7 +79,7 @@ class BlogController extends Controller
             'thumbnail' => [
                 'nullable',
                 'image',
-                'mimes:jpeg,png,jpg,webp',
+                'mimes:jpeg,png,jpg,webp,heic,heif',
                 'max:5120',
             ],
         ]);
@@ -91,7 +91,7 @@ class BlogController extends Controller
             $validated['thumbnail'] = $thumbnailPath;
         }
 
-        $blog->save();
+        $blog->update();
 
         return response()->json($blog);
     }
