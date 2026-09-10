@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Blog;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Laravel\Facades\Image;
+use Illuminate\Support\Str;
 
 class BlogController extends Controller
 {
@@ -35,8 +37,19 @@ class BlogController extends Controller
         $thumbnailPath = null;
     
         if ($request->hasFile('thumbnail')) {
-            $thumbnailPath = $request->file('thumbnail')
-                ->store('blogs', 'public');
+            $filename = Str::uuid() . '.webp';
+            $path = 'blogs/' . $filename;
+    
+            $image = Image::decode($request->file('thumbnail'));
+    
+            $encoded = $image->encodeUsingFileExtension(
+                'webp',
+                quality: 80
+            );
+    
+            Storage::disk('public')->put($path, $encoded);
+    
+            $thumbnailPath = $path;
         }
     
         $blog = Blog::create([
@@ -83,13 +96,23 @@ class BlogController extends Controller
                 'max:5120',
             ],
         ]);
-    
+
         if ($request->hasFile('thumbnail')) {
-            $thumbnailPath = $request->file('thumbnail')
-                ->store('blogs', 'public');
-    
-            $validated['thumbnail'] = $thumbnailPath;
+            $filename = Str::uuid() . '.webp';
+            $path = 'blogs/' . $filename;
+            $image = Image::decode($request->file('thumbnail'));
+
+            $encoded = $image->encodeUsingFileExtension(
+                'webp',
+                quality: 80
+            );
+            Storage::disk('public')->put($path, $encoded);
+            if ($blog->thumbnail) {
+                Storage::disk('public')->delete($blog->thumbnail);
+            }
+            $validated['thumbnail'] = $path;
         }
+    
 
         $blog->update($validated);
 
