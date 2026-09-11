@@ -43,13 +43,17 @@ class UserController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
-
+    
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => $validated['password'],
         ]);
-
+    
+        Auth::login($user);
+    
+        $request->session()->regenerate();
+    
         return response()->json([
             'message' => '会員登録が完了しました。',
             'user' => $user,
@@ -118,7 +122,7 @@ class UserController extends Controller
             'message' => 'ログアウトしました。',
         ]);
     }
-    
+
     public function me(Request $request)
     {
         return response()->json($request->user());
