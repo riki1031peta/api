@@ -24,6 +24,7 @@ return [
         'http://localhost:3000',
         'http://127.0.0.1:3000',
         'https://dairy-three-green.vercel.app',
+        'https://dopa-log.com',
     ],
 
     'allowed_origins_patterns' => [],
