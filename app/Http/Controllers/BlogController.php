@@ -26,11 +26,6 @@ class BlogController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
             'author' => ['nullable', 'string', 'max:100'],
-            // 'thumbnail' => [
-            //     'nullable',
-            //     'mimes:jpeg,png,jpg,webp,heic,heif',
-            //     'max:5120',
-            // ],
             'thumbnail' => [
                 'nullable',
                 'mimetypes:image/jpeg,image/png,image/webp,image/heic,image/heif',
@@ -43,16 +38,12 @@ class BlogController extends Controller
         if ($request->hasFile('thumbnail')) {
             $filename = Str::uuid() . '.webp';
             $path = 'blogs/' . $filename;
-    
             $image = Image::decode($request->file('thumbnail'));
-    
             $encoded = $image->encodeUsingFileExtension(
                 'webp',
                 quality: 80
             );
-    
             Storage::disk('public')->put($path, $encoded);
-    
             $thumbnailPath = $path;
         }
     
@@ -62,7 +53,6 @@ class BlogController extends Controller
             'author' => $validated['author'] ?? null,
             'thumbnail' => $thumbnailPath,
         ]);
-
         return response()->json($blog, 201);
     }
 
