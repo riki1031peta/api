@@ -8,9 +8,12 @@ use App\Models\Blog;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Laravel\Facades\Image;
 use Illuminate\Support\Str;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class BlogController extends Controller
 {
+    use AuthorizesRequests;
+    
     /**
      * ブログ作成
      */
@@ -127,7 +130,7 @@ class BlogController extends Controller
     public function destroy(Blog $blog)
     {
         $this->authorize('delete', $blog);
-        
+
         if ($blog->thumbnail) {
             Storage::disk('public')->delete($blog->thumbnail);
         }
