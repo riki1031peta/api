@@ -81,6 +81,8 @@ class BlogController extends Controller
      */
     public function update(Request $request, Blog $blog)
     {
+        $this->authorize('update', $blog);
+
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
@@ -124,6 +126,8 @@ class BlogController extends Controller
      */
     public function destroy(Blog $blog)
     {
+        $this->authorize('delete', $blog);
+        
         if ($blog->thumbnail) {
             Storage::disk('public')->delete($blog->thumbnail);
         }

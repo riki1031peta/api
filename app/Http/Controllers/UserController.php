@@ -64,24 +64,55 @@ class UserController extends Controller
         ], 201);
     }
 
-    // ユーザー更新
+    // // ユーザー更新
+    // public function update(Request $request, User $user)
+    // {
+    //     $validated = $request->validate([
+    //         'name' => ['required', 'string', 'max:255'],
+    //         'email' => [
+    //             'required',
+    //             'email',
+    //             'max:255',
+    //             'unique:users,email,' . $user->id,
+    //         ],
+    //         'password' => ['nullable', 'string', 'min:8'],
+    //         'icon' => ['nullable', 'string'],
+    //     ]);
+
+    //     $user->update($validated);
+
+    //     return response()->json($user);
+    // }
+
     public function update(Request $request, User $user)
     {
+        if ($request->user()->id !== $user->id && !$request->user()->isAdmin()) {
+            abort(403);
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                'unique:users,email,' . $user->id,
-            ],
-            'password' => ['nullable', 'string', 'min:8'],
-            'icon' => ['nullable', 'string'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'icon' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,heic,heif', 'max:5120'],
+            'password' => ['nullable', 'string', 'confirmed', 'min:8'],
         ]);
+
+        if ($request->hasFile('icon')) {
+            $validated['icon'] = $request->file('icon')->store('users/icons', 'public');
+        } else {
+            unset($validated['icon']);
+        }
+
+        if (empty($validated['password'])) {
+            unset($validated['password']);
+        }
 
         $user->update($validated);
 
-        return response()->json($user);
+        return response()->json([
+            'message' => 'ユーザー情報を更新しました。',
+            'user' => $user->fresh(),
+        ]);
     }
 
     // ユーザー削除
