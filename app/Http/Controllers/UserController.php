@@ -58,8 +58,6 @@ class UserController extends Controller
     
         Auth::login($user);
     
-        $request->session()->regenerate();
-    
         return response()->json([
             'message' => '会員登録が完了しました。',
             'user' => $user,
