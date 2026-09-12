@@ -3,6 +3,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminAuthController;
+use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\CommentController;
 
 Route::get('/test', function () {
     return response()->json([
@@ -29,6 +31,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/blogs', [BlogController::class, 'store']);
     Route::post('/logout', [UserController::class, 'logout']);
     Route::get('/user', [UserController::class, 'me']);
+
+    Route::post('/blogs/{blog}/favorite', [FavoriteController::class, 'store']);
+    Route::delete('/blogs/{blog}/favorite', [FavoriteController::class, 'destroy']);
+
+    Route::get('/blogs/{blog}/comments', [CommentController::class, 'index']);
+    Route::post('/blogs/{blog}/comments', [CommentController::class, 'store']);
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
 });
 
 Route::get('/blogs', [BlogController::class, 'index']);

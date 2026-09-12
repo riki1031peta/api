@@ -74,10 +74,26 @@ class BlogController extends Controller
     /**
      * ブログ詳細
      */
-    public function show(Blog $blog)
+    public function show(Request $request, Blog $blog)
     {
         $blog->increment('views');
-        return response()->json($blog);
+
+        $blog->refresh();
+        $blog->loadCount('favorites');
+
+        $isFavorited = false;
+    
+        if ($request->user()) {
+            $isFavorited = $blog->favorites()
+                ->where('user_id', $request->user()->id)
+                ->exists();
+        }
+    
+        return response()->json([
+            ...$blog->fresh()->toArray(),
+            'favorites_count' => $blog->favorites_count,
+            'is_favorited' => $isFavorited,
+        ]);
     }
 
     /**
