@@ -42,12 +42,18 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'confirmed'],
+            'icon' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,heic,heif', 'max:5120'],
         ]);
+        $iconPath = null;
+        if ($request->hasFile('icon')) {
+            $iconPath = $request->file('icon')->store('users/icons', 'public');
+        }
     
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => $validated['password'],
+            'icon' => $iconPath,
         ]);
     
         Auth::login($user);
