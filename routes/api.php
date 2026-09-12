@@ -22,12 +22,13 @@ Route::post('/users', [UserController::class, 'store']);
 Route::put('/users/{user}', [UserController::class, 'update']);
 Route::delete('/users/{user}', [UserController::class, 'destroy']);
 
-// ログイン系
-Route::post('/register', [UserController::class, 'register']);
-Route::post('/login', [UserController::class, 'login']);
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [UserController::class, 'logout']);
-    Route::get('/user', [UserController::class, 'me']);
+Route::middleware('web')->group(function () {
+    Route::post('/register', [UserController::class, 'register']);
+    Route::post('/login', [UserController::class, 'login']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', [UserController::class, 'logout']);
+        Route::get('/user', [UserController::class, 'me']);
+    });
 });
 
 Route::get('/blogs', [BlogController::class, 'index']);
