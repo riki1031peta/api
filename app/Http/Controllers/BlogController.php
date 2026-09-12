@@ -47,7 +47,9 @@ class BlogController extends Controller
             $thumbnailPath = $path;
         }
     
-        $blog = Blog::create([
+        $user = $request->user();
+
+        $blog = $user->blogs()->create([
             'title' => $validated['title'],
             'content' => $validated['content'],
             'author' => $validated['author'] ?? null,

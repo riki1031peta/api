@@ -26,13 +26,14 @@ Route::delete('/users/{user}', [UserController::class, 'destroy']);
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/blogs', [BlogController::class, 'store']);
     Route::post('/logout', [UserController::class, 'logout']);
     Route::get('/user', [UserController::class, 'me']);
 });
 
 Route::get('/blogs', [BlogController::class, 'index']);
 Route::get('/blogs/{blog}', [BlogController::class, 'show']);
-Route::post('/blogs', [BlogController::class, 'store']);
+// Route::post('/blogs', [BlogController::class, 'store']);
 Route::put('/blogs/{blog}', [BlogController::class, 'update']);
 Route::delete('/blogs/{blog}', [BlogController::class, 'destroy']);
 
