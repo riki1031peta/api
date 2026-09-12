@@ -13,7 +13,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class BlogController extends Controller
 {
     use AuthorizesRequests;
-    
+
     /**
      * ブログ作成
      */
@@ -76,6 +76,7 @@ class BlogController extends Controller
      */
     public function show(Blog $blog)
     {
+        $blog->increment('views');
         return response()->json($blog);
     }
 
