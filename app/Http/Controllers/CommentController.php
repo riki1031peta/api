@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Blog;
 use Illuminate\Http\Request;
+use App\Notifications\BlogCommented;
 
 class CommentController extends Controller
 {
@@ -29,6 +30,14 @@ class CommentController extends Controller
         ]);
 
         $comment->load('user');
+
+        $owner = $blog->user;
+
+        if ($owner && $owner->id !== $request->user()->id) {
+            $owner->notify(
+                new BlogCommented($blog, $request->user(), $comment)
+            );
+        }
 
         return response()->json($comment, 201);
     }

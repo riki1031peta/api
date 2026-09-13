@@ -5,6 +5,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\CommentController;
+use Illuminate\Http\Request;
 
 Route::get('/test', function () {
     return response()->json([
@@ -38,6 +39,30 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/blogs/{blog}/comments', [CommentController::class, 'index']);
     Route::post('/blogs/{blog}/comments', [CommentController::class, 'store']);
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
+
+    Route::get('/notifications', function (Request $request) {
+        return $request->user()
+            ->notifications()
+            ->latest()
+            ->get();
+    });
+
+    Route::get('/notifications/unread', function (Request $request) {
+        return $request->user()
+            ->unreadNotifications()
+            ->latest()
+            ->get();
+    });
+
+    Route::post('/notifications/read-all', function (Request $request) {
+        $request->user()
+            ->unreadNotifications
+            ->markAsRead();
+
+        return response()->json([
+            'message' => '通知を既読にしました。',
+        ]);
+    });
 });
 
 Route::get('/blogs', [BlogController::class, 'index']);

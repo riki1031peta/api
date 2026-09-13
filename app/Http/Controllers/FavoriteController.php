@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Blog;
 use Illuminate\Http\Request;
+use App\Notifications\BlogFavorited;
 
 class FavoriteController extends Controller
 {
@@ -12,6 +13,16 @@ class FavoriteController extends Controller
         $favorite = $request->user()->favorites()->firstOrCreate([
             'blog_id' => $blog->id,
         ]);
+
+        if ($favorite->wasRecentlyCreated) {
+            $owner = $blog->user;
+    
+            if ($owner && $owner->id !== $request->user()->id) {
+                $owner->notify(
+                    new BlogFavorited($blog, $request->user())
+                );
+            }
+        }
 
         return response()->json([
             'message' => 'いいねしました。',
