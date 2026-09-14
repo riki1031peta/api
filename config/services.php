@@ -35,4 +35,17 @@ return [
         ],
     ],
 
+    'line' => [
+        'channel_access_token' => env('LINE_CHANNEL_ACCESS_TOKEN'),
+        'test_user_id' => env('LINE_TEST_USER_ID'),
+    ],
+
+    'line_login' => [
+        'channel_id' => env('LINE_LOGIN_CHANNEL_ID'),
+        'channel_secret' => env('LINE_LOGIN_CHANNEL_SECRET'),
+        'redirect_uri' => env(
+            'LINE_LOGIN_REDIRECT_URI',
+            'https://api.dopa-log.com/api/line/callback'
+        ),
+    ],
 ];

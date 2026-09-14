@@ -7,6 +7,8 @@ use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\BlogImageController;
+use App\Http\Controllers\LineNotificationController;
+use App\Http\Controllers\LineAuthController;
 use Illuminate\Http\Request;
 
 Route::get('/test', function () {
@@ -30,7 +32,12 @@ Route::delete('/users/{user}', [UserController::class, 'destroy']);
 // ログイン系
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
+
+Route::get('/line/callback', [LineAuthController::class, 'callback']);
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/line/test', [LineNotificationController::class, 'test']);
+    Route::get('/line/connect', [LineAuthController::class, 'connect']);
+
     Route::post('/blogs', [BlogController::class, 'store']);
     Route::post('/logout', [UserController::class, 'logout']);
     Route::get('/user', [UserController::class, 'me']);

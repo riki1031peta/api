@@ -39,6 +39,7 @@ class User extends Authenticatable
         'password',
         'icon',
         'role',
+        'line_user_id',
     ];
 
     /**
