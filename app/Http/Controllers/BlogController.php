@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Laravel\Facades\Image;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Models\User;
+use App\Services\LineMessageService;
 
 class BlogController extends Controller
 {
@@ -17,7 +19,10 @@ class BlogController extends Controller
     /**
      * ブログ作成
      */
-    public function store(Request $request)
+    public function store(
+        Request $request,  
+        LineMessageService $lineMessageService,
+    )
     {
         \Log::info('BLOG STORE', [
             'all' => $request->except('thumbnail'),
@@ -58,6 +63,20 @@ class BlogController extends Controller
             'author' => $validated['author'] ?? null,
             'thumbnail' => $thumbnailPath,
         ]);
+
+        $users = User::whereNotNull('line_user_id')
+            ->where('id', '!=', $user->id)
+            ->get();
+
+        foreach ($users as $targetUser) {
+            $lineMessageService->send(
+                $targetUser->line_user_id,
+                "{$user->name}さんがブログを投稿しました！\n"
+                . "「{$blog->title}」\n\n"
+                . "https://dopa-log.com/blogs/{$blog->id}"
+            );
+        }
+
         return response()->json($blog, 201);
     }
 
