@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\BlogImageController;
 use Illuminate\Http\Request;
 
 Route::get('/test', function () {
@@ -64,6 +65,8 @@ Route::middleware('auth:sanctum')->group(function () {
             'message' => '通知を既読にしました。',
         ]);
     });
+
+    Route::post('/blog-images', [BlogImageController::class, 'store']);
 });
 
 Route::get('/blogs', [BlogController::class, 'index']);
