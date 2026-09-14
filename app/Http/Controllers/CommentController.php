@@ -6,17 +6,23 @@ use App\Models\Blog;
 use Illuminate\Http\Request;
 use App\Notifications\BlogCommented;
 use App\Services\LineMessageService;
+use App\Models\Comment;
+use App\Notifications\CommentReplied;
 
 class CommentController extends Controller
 {
     public function index(Blog $blog)
     {
-        return response()->json(
-            $blog->comments()
-                ->with('user')
-                ->latest()
-                ->get()
-        );
+        $comments = $blog->comments()
+            ->whereNull('parent_id')
+            ->with([
+                'user',
+                'replies.user',
+            ])
+            ->latest()
+            ->get();
+
+        return response()->json($comments);
     }
 
     public function store(
@@ -26,37 +32,70 @@ class CommentController extends Controller
     )
     {
         $validated = $request->validate([
-            'content' => ['required', 'string', 'max:1000'],
+            'content' => ['required', 'string'],
+            'parent_id' => [
+                'nullable',
+                'integer',
+                'exists:comments,id',
+            ],
         ]);
 
         $user = $request->user();
+        $parent = null;
+
+        if (!empty($validated['parent_id'])) {
+            $parent = Comment::where('id', $validated['parent_id'])
+                ->where('blog_id', $blog->id)
+                ->firstOrFail();
+        }
 
         $comment = $user->comments()->create([
             'blog_id' => $blog->id,
+            'parent_id' => $parent?->id,
             'content' => $validated['content'],
         ]);
 
         $comment->load('user');
-
         $owner = $blog->user;
 
-        if ($owner && $owner->id !== $user->id) {
-            $owner->notify(
-                new BlogCommented(
-                    $blog,
-                    $user,
-                    $comment
-                )
-            );
+        if ($parent) {
+            $targetUser = $parent->user;
+            if ($targetUser && $targetUser->id !== $user->id) {
+                $targetUser->notify(
+                    new CommentReplied(
+                        $blog,
+                        $user,
+                        $comment
+                    )
+                );
     
-            $lineMessageService->send(
-                $owner->line_user_id,
-                "{$user->name}さんがあなたの記事「{$blog->title}」にコメントしました！\n\n"
-                . "「{$comment->content}」\n\n"
-                . "https://dopa-log.com/blogs/{$blog->id}"
-            );
+                $lineMessageService->send(
+                    $targetUser->line_user_id,
+                    "{$user->name}さんがあなたのコメントに返信しました！\n\n"
+                    . "「{$comment->content}」\n\n"
+                    . "https://dopa-log.com/blogs/{$blog->id}"
+                );
+            }
+        } else {
+            $owner = $blog->user;
+    
+            if ($owner && $owner->id !== $user->id) {
+                $owner->notify(
+                    new BlogCommented(
+                        $blog,
+                        $user,
+                        $comment
+                    )
+                );
+    
+                $lineMessageService->send(
+                    $owner->line_user_id,
+                    "{$user->name}さんがあなたの記事「{$blog->title}」にコメントしました！\n\n"
+                    . "「{$comment->content}」\n\n"
+                    . "https://dopa-log.com/blogs/{$blog->id}"
+                );
+            }
         }
-
         return response()->json($comment, 201);
     }
 
