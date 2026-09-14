@@ -5,21 +5,34 @@ namespace App\Http\Controllers;
 use App\Models\Blog;
 use Illuminate\Http\Request;
 use App\Notifications\BlogFavorited;
+use App\Services\LineMessageService;
 
 class FavoriteController extends Controller
 {
-    public function store(Request $request, Blog $blog)
+    public function store(
+        Request $request,
+        Blog $blog,
+        LineMessageService $lineMessageService
+    )
     {
-        $favorite = $request->user()->favorites()->firstOrCreate([
+        $user = $request->user();
+
+        $favorite = $user->favorites()->firstOrCreate([
             'blog_id' => $blog->id,
         ]);
 
         if ($favorite->wasRecentlyCreated) {
             $owner = $blog->user;
     
-            if ($owner && $owner->id !== $request->user()->id) {
+            if ($owner && $owner->id !== $user->id) {
                 $owner->notify(
-                    new BlogFavorited($blog, $request->user())
+                    new BlogFavorited($blog, $user)
+                );
+    
+                $lineMessageService->send(
+                    $owner->line_user_id,
+                    "{$user->name}さんがあなたの記事「{$blog->title}」にいいねしました！\n"
+                    . "https://dopa-log.com/blogs/{$blog->id}"
                 );
             }
         }

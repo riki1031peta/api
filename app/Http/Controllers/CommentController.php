@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Blog;
 use Illuminate\Http\Request;
 use App\Notifications\BlogCommented;
+use App\Services\LineMessageService;
 
 class CommentController extends Controller
 {
@@ -18,13 +19,19 @@ class CommentController extends Controller
         );
     }
 
-    public function store(Request $request, Blog $blog)
+    public function store(
+        Request $request,
+        Blog $blog,
+        LineMessageService $lineMessageService,
+    )
     {
         $validated = $request->validate([
             'content' => ['required', 'string', 'max:1000'],
         ]);
 
-        $comment = $request->user()->comments()->create([
+        $user = $request->user();
+
+        $comment = $user->comments()->create([
             'blog_id' => $blog->id,
             'content' => $validated['content'],
         ]);
@@ -33,9 +40,20 @@ class CommentController extends Controller
 
         $owner = $blog->user;
 
-        if ($owner && $owner->id !== $request->user()->id) {
+        if ($owner && $owner->id !== $user->id) {
             $owner->notify(
-                new BlogCommented($blog, $request->user(), $comment)
+                new BlogCommented(
+                    $blog,
+                    $user,
+                    $comment
+                )
+            );
+    
+            $lineMessageService->send(
+                $owner->line_user_id,
+                "{$user->name}さんがあなたの記事「{$blog->title}」にコメントしました！\n\n"
+                . "「{$comment->content}」\n\n"
+                . "https://dopa-log.com/blogs/{$blog->id}"
             );
         }
 
