@@ -5,6 +5,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Http\Request;
 
 Route::get('/test', function () {
@@ -70,6 +71,8 @@ Route::get('/blogs/{blog}', [BlogController::class, 'show']);
 // Route::post('/blogs', [BlogController::class, 'store']);
 Route::put('/blogs/{blog}', [BlogController::class, 'update']);
 Route::delete('/blogs/{blog}', [BlogController::class, 'destroy']);
+
+Route::get('/sitemap-routes', [SitemapController::class, 'index']);
 
 // Route::post('/admin/login', [AdminAuthController::class, 'login']);
 ?>
