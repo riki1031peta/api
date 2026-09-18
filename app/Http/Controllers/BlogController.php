@@ -83,11 +83,20 @@ class BlogController extends Controller
     /**
      * ブログ一覧
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(
-            Blog::latest()->get()
-        );
+        $query = Blog::query();
+    
+        if ($request->filled('q')) {
+            $keyword = $request->input('q');
+    
+            $query->where(function ($q) use ($keyword) {
+                $q->where('title', 'like', "%{$keyword}%")
+                  ->orWhere('content', 'like', "%{$keyword}%");
+            });
+        }
+    
+        return $query->latest()->get();
     }
 
     /**
