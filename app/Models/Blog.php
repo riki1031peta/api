@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\HasFactory;
 // use App\Models\Admin;
 use App\Models\User;
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -16,6 +17,9 @@ class Blog extends Model
         'content',
         'author',
         'thumbnail',
+        'category',
+        'seriousness',
+        'category_id',
     ];
 
     public function favorites(): HasMany
@@ -36,5 +40,10 @@ class Blog extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }

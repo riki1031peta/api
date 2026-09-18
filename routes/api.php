@@ -9,6 +9,7 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\BlogImageController;
 use App\Http\Controllers\LineNotificationController;
 use App\Http\Controllers\LineAuthController;
+use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
 
 Route::get('/test', function () {
@@ -34,6 +35,9 @@ Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 
 Route::get('/line/callback', [LineAuthController::class, 'callback']);
+
+Route::get('/categories', [CategoryController::class, 'index']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/line/test', [LineNotificationController::class, 'test']);
     Route::get('/line/connect', [LineAuthController::class, 'connect']);
@@ -74,6 +78,10 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::post('/blog-images', [BlogImageController::class, 'store']);
+
+    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::put('/categories/{category}', [CategoryController::class, 'update']);
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 });
 
 Route::get('/blogs', [BlogController::class, 'index']);

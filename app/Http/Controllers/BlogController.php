@@ -39,6 +39,9 @@ class BlogController extends Controller
                 'mimetypes:image/jpeg,image/png,image/webp,image/heic,image/heif',
                 'max:5120',
             ],
+            'category' => 'nullable|string|max:50',
+            'seriousness' => 'nullable|integer|min:1|max:5',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
     
         $thumbnailPath = null;
@@ -62,6 +65,8 @@ class BlogController extends Controller
             'content' => $validated['content'],
             'author' => $validated['author'] ?? null,
             'thumbnail' => $thumbnailPath,
+            'category_id' => $validated['category_id'] ?? null,
+            'seriousness' => $validated['seriousness'] ?? null,
         ]);
 
         $users = User::whereNotNull('line_user_id')
@@ -80,13 +85,10 @@ class BlogController extends Controller
         return response()->json($blog, 201);
     }
 
-    /**
-     * ブログ一覧
-     */
     public function index(Request $request)
     {
-        $query = Blog::query();
-    
+        $query = Blog::with(['user', 'category']);
+
         if ($request->filled('q')) {
             $keyword = $request->input('q');
     
@@ -94,6 +96,10 @@ class BlogController extends Controller
                 $q->where('title', 'like', "%{$keyword}%")
                   ->orWhere('content', 'like', "%{$keyword}%");
             });
+        }
+    
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->input('category_id'));
         }
     
         return $query->latest()->get();
@@ -105,10 +111,11 @@ class BlogController extends Controller
     public function show(Request $request, Blog $blog)
     {
         $blog->increment('views');
-
+    
         $blog->refresh();
+        $blog->load(['user', 'category']);
         $blog->loadCount('favorites');
-
+    
         $isFavorited = false;
     
         if ($request->user()) {
@@ -118,7 +125,7 @@ class BlogController extends Controller
         }
     
         return response()->json([
-            ...$blog->fresh()->toArray(),
+            ...$blog->toArray(),
             'favorites_count' => $blog->favorites_count,
             'is_favorited' => $isFavorited,
         ]);
@@ -145,6 +152,9 @@ class BlogController extends Controller
                 'mimetypes:image/jpeg,image/png,image/webp,image/heic,image/heif',
                 'max:5120',
             ],
+            'category' => 'nullable|string|max:50',
+            'seriousness' => 'nullable|integer|min:1|max:5',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
         if ($request->hasFile('thumbnail')) {
