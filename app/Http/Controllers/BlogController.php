@@ -87,23 +87,23 @@ class BlogController extends Controller
 
         $blog->load('category');
 
-    try {
-        $aiComment = $geminiService->commentOnBlog($blog);
+        try {
+            $aiComment = $geminiService->commentOnBlog($blog);
 
-        $aiUser = User::where('email', 'ai@dopa-log.com')->first();
+            $aiUser = User::where('email', 'ai@dopa-log.com')->first();
 
-        if ($aiUser && $aiComment) {
-            $blog->comments()->create([
-                'user_id' => $aiUser->id,
-                'content' => $aiComment,
+            if ($aiUser && $aiComment) {
+                $blog->comments()->create([
+                    'user_id' => $aiUser->id,
+                    'content' => $aiComment,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('AIコメント生成失敗', [
+                'blog_id' => $blog->id,
+                'error' => $e->getMessage(),
             ]);
         }
-    } catch (\Throwable $e) {
-        Log::warning('AIコメント生成失敗', [
-            'blog_id' => $blog->id,
-            'error' => $e->getMessage(),
-        ]);
-    }
 
         return response()->json($blog, 201);
     }
