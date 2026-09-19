@@ -48,4 +48,8 @@ return [
             'https://api.dopa-log.com/api/line/callback'
         ),
     ],
+
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+    ],
 ];

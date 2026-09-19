@@ -10,6 +10,7 @@ use App\Http\Controllers\BlogImageController;
 use App\Http\Controllers\LineNotificationController;
 use App\Http\Controllers\LineAuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\AiRecommendController;
 use Illuminate\Http\Request;
 
 Route::get('/test', function () {
@@ -91,6 +92,11 @@ Route::put('/blogs/{blog}', [BlogController::class, 'update']);
 Route::delete('/blogs/{blog}', [BlogController::class, 'destroy']);
 
 Route::get('/sitemap-routes', [SitemapController::class, 'index']);
+
+Route::post(
+    '/ai/recommend',
+    [AiRecommendController::class, 'recommend']
+);
 
 // Route::post('/admin/login', [AdminAuthController::class, 'login']);
 ?>
