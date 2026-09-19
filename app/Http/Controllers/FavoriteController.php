@@ -29,11 +29,11 @@ class FavoriteController extends Controller
                     new BlogFavorited($blog, $user)
                 );
     
-                $lineMessageService->send(
-                    $owner->line_user_id,
-                    "{$user->name}さんがあなたの記事「{$blog->title}」にいいねしました！\n"
-                    . "https://dopa-log.com/blogs/{$blog->id}"
-                );
+                // $lineMessageService->send(
+                //     $owner->line_user_id,
+                //     "{$user->name}さんがあなたの記事「{$blog->title}」にいいねしました！\n"
+                //     . "https://dopa-log.com/blogs/{$blog->id}"
+                // );
             }
         }
 
