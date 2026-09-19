@@ -96,7 +96,7 @@ Route::get('/sitemap-routes', [SitemapController::class, 'index']);
 Route::post(
     '/ai/recommend',
     [AiRecommendController::class, 'recommend']
-);
+)->middleware('throttle:5,1');
 
 // Route::post('/admin/login', [AdminAuthController::class, 'login']);
 ?>
