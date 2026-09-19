@@ -3,14 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Blog;
-use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Laravel\Facades\Image;
-use Illuminate\Support\Str;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Models\User;
 use App\Services\LineMessageService;
+use App\Services\GeminiService;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 
 class BlogController extends Controller
 {
@@ -22,6 +24,7 @@ class BlogController extends Controller
     public function store(
         Request $request,  
         LineMessageService $lineMessageService,
+        GeminiService $geminiService,
     )
     {
         \Log::info('BLOG STORE', [
@@ -81,6 +84,26 @@ class BlogController extends Controller
                 . "https://dopa-log.com/blogs/{$blog->id}"
             );
         }
+
+        $blog->load('category');
+
+    try {
+        $aiComment = $geminiService->commentOnBlog($blog);
+
+        $aiUser = User::where('email', 'ai@dopa-log.com')->first();
+
+        if ($aiUser && $aiComment) {
+            $blog->comments()->create([
+                'user_id' => $aiUser->id,
+                'content' => $aiComment,
+            ]);
+        }
+    } catch (\Throwable $e) {
+        Log::warning('AIコメント生成失敗', [
+            'blog_id' => $blog->id,
+            'error' => $e->getMessage(),
+        ]);
+    }
 
         return response()->json($blog, 201);
     }
