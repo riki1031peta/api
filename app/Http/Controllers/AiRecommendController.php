@@ -18,7 +18,7 @@ class AiRecommendController extends Controller
 
         $blogs = Blog::with('category')
             ->latest()
-            ->limit(50)
+            // ->limit(50)
             ->get();
 
         if ($blogs->isEmpty()) {
