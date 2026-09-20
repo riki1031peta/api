@@ -8,6 +8,7 @@ use Intervention\Image\Laravel\Facades\Image;
 use App\Models\User;
 use App\Services\LineMessageService;
 use App\Services\GeminiService;
+use App\Services\DopaService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Storage;
@@ -25,6 +26,7 @@ class BlogController extends Controller
         Request $request,  
         LineMessageService $lineMessageService,
         GeminiService $geminiService,
+        DopaService $dopaService,
     )
     {
         \Log::info('BLOG STORE', [
@@ -104,6 +106,14 @@ class BlogController extends Controller
                 'error' => $e->getMessage(),
             ]);
         }
+
+        $dopa = $dopaService->getOrCreate($user);
+
+        $dopaService->reward(
+            $dopa,
+            'blog_created',
+            $blog
+        );
 
         return response()->json($blog, 201);
     }

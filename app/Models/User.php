@@ -28,6 +28,11 @@ class User extends Authenticatable
         return $this->hasMany(Comment::class);
     }
 
+    public function dopa()
+    {
+        return $this->hasOne(Dopa::class);
+    }
+
     /**
      * The attributes that are mass assignable.
      *

@@ -11,6 +11,7 @@ use App\Http\Controllers\LineNotificationController;
 use App\Http\Controllers\LineAuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\AiRecommendController;
+use App\Http\Controllers\DopaController;
 use Illuminate\Http\Request;
 
 Route::get('/test', function () {
@@ -83,6 +84,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/categories', [CategoryController::class, 'store']);
     Route::put('/categories/{category}', [CategoryController::class, 'update']);
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+
+    Route::get('/dopa', [DopaController::class, 'show']);
+    Route::patch('/dopa', [DopaController::class, 'update']);
+
 });
 
 Route::get('/blogs', [BlogController::class, 'index']);

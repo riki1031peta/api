@@ -8,6 +8,7 @@ use App\Notifications\BlogCommented;
 use App\Services\LineMessageService;
 use App\Models\Comment;
 use App\Notifications\CommentReplied;
+use App\Services\DopaService;
 
 class CommentController extends Controller
 {
@@ -29,6 +30,7 @@ class CommentController extends Controller
         Request $request,
         Blog $blog,
         LineMessageService $lineMessageService,
+        DopaService $dopaService,
     )
     {
         $validated = $request->validate([
@@ -96,6 +98,15 @@ class CommentController extends Controller
                 );
             }
         }
+
+        $dopa = $dopaService->getOrCreate($request->user());
+
+        $dopaService->reward(
+            $dopa,
+            'comment_created',
+            $comment
+        );
+
         return response()->json($comment, 201);
     }
 

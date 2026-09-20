@@ -6,13 +6,15 @@ use App\Models\Blog;
 use Illuminate\Http\Request;
 use App\Notifications\BlogFavorited;
 use App\Services\LineMessageService;
+use App\Services\DopaService;
 
 class FavoriteController extends Controller
 {
     public function store(
         Request $request,
         Blog $blog,
-        LineMessageService $lineMessageService
+        LineMessageService $lineMessageService,
+        DopaService $dopaService,
     )
     {
         $user = $request->user();
@@ -36,6 +38,14 @@ class FavoriteController extends Controller
                 // );
             }
         }
+
+        $dopa = $dopaService->getOrCreate($request->user());
+
+        $dopaService->reward(
+            $dopa,
+            'favorite_created',
+            $favorite
+        );
 
         return response()->json([
             'message' => 'いいねしました。',
