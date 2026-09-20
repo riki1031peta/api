@@ -30,6 +30,7 @@ class BlogController extends Controller
     )
     {
         \Log::info('BLOG STORE', [
+            'user_id' => $request->user()?->id,
             'all' => $request->except('thumbnail'),
             'has_thumbnail' => $request->hasFile('thumbnail'),
             'thumbnail' => $request->file('thumbnail')?->getClientOriginalName(),
@@ -48,22 +49,35 @@ class BlogController extends Controller
             'seriousness' => 'nullable|integer|min:1|max:5',
             'category_id' => 'nullable|exists:categories,id',
         ]);
+
+        \Log::info('BLOG STORE VALIDATE OK');
     
         $thumbnailPath = null;
     
         if ($request->hasFile('thumbnail')) {
+            \Log::info('BLOG STORE IMAGE START');
             $filename = Str::uuid() . '.webp';
             $path = 'blogs/' . $filename;
             $image = Image::decode($request->file('thumbnail'));
+            \Log::info('BLOG STORE IMAGE DECODE OK');
             $encoded = $image->encodeUsingFileExtension(
                 'webp',
                 quality: 80
             );
+            \Log::info('BLOG STORE IMAGE ENCODE OK');
             Storage::disk('public')->put($path, $encoded);
+            \Log::info('BLOG STORE IMAGE SAVE OK', [
+                'path' => $path,
+            ]);
+        
             $thumbnailPath = $path;
         }
     
         $user = $request->user();
+
+        \Log::info('BLOG STORE BEFORE CREATE', [
+            'user_id' => $user?->id,
+        ]);
 
         $blog = $user->blogs()->create([
             'title' => $validated['title'],
@@ -72,6 +86,10 @@ class BlogController extends Controller
             'thumbnail' => $thumbnailPath,
             'category_id' => $validated['category_id'] ?? null,
             'seriousness' => $validated['seriousness'] ?? null,
+        ]);
+
+        \Log::info('BLOG STORE CREATE OK', [
+            'blog_id' => $blog->id,
         ]);
 
         $users = User::whereNotNull('line_user_id')
