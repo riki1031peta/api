@@ -12,8 +12,8 @@ class DopaService
     public const MAX_LEVEL = 100;
 
     public const EXP = [
-        'blog_created' => 200,
-        'comment_created' => 100,
+        'blog_created' => 100,
+        'comment_created' => 70,
         'favorite_created' => 50,
     ];
 
